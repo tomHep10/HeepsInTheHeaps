@@ -7,7 +7,13 @@ def main():
     if i == 0:
         exit()
     if i == 1:
-        graph._createAStarGraph(20, 20)
+        graph._createAStarGraph(5, 5)
+        #keeping start at (0,0) and end at (4,4) for now
+        path = graph.aStarShortestPath((0,0), (4,4))
+        if path != None:
+            for p in path:
+                print(p)
+
         main()
     if i == 2:
         main()
