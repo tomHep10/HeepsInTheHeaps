@@ -9,11 +9,11 @@ def main():
     if i == 1:
         graph._createAStarGraph(5, 5)
         #keeping start at (0,0) and end at (4,4) for now
-        path = graph.aStarShortestPath((0,0), (4,4))
-        if path != None:
-            for p in path:
-                print(p)
-
+        path = graph.aStarShortestPath((0,0), (4,4), "Manhattan")
+        if path is not None:
+            graph.aStarPath = path
+            for x,y  in path:
+                print((x,y), end = " ")
         main()
     if i == 2:
         main()
