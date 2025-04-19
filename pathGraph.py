@@ -11,10 +11,14 @@ class Node:
         self.totalDistance = 0 # distance to from start to finish (f value)
         self.parent_row = 0 # parents location in row
         self.parent_col = 0 # parents location in col
+        self.row = 0
+        self.col = 0
+
 
 class pathGraph:
   def __init__(self):
     self.aStarGraph = None
+    self.aStarPath = None
     self.dStarGraph = None
     self.nodes = None
 
@@ -30,36 +34,38 @@ class pathGraph:
         if random.random() < probabilityOfObstacle:
           self.aStarGraph[i][j] = 1
 
+    self.aStarGraph[0][0] = 0
+    self.aStarGraph[row-1][col-1] = 0
     # printing out grid
     for row in self.aStarGraph:
-        print(' '.join(str(cell) for cell in row))
+       print(' '.join(str(cell) for cell in row))
 
   def _createDStarGraph(self):
     pass
 
 
   # A* algorithm
-  def aStarShortestPath(self,start,end):
+  def aStarShortestPath(self,start,end, type):
     start_row, start_col = start
     end_row, end_col = end
 
     start_node = self.nodes[start_row][start_col]
     end_node = self.nodes[end_row][end_col]
-    start_node.costToDest = self.euclideanDistance(start_node, end_node)
+    start_node.costToDest = self.Distance(start_node, end_node, type)
     start_node.totalDistance = start_node.costToNode + start_node.costToDest
 
     open_list = [(start_row,start_col)]
     closed_list = []
 
-    #8 possible directions of travel
-    directions = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
-    while len(open_list) > 0:
-        current = open_list[0]
+    #8 possible directions of travel (4 if Manhattan)
+    if type == "Diagonal" or type == "Euclidean":
+        directions = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    else:
+        directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
-        #searching for the lowest total distance
-        for node in open_list:
-            if self.nodes[node[0]][node[1]].totalDistance < self.nodes[current[0]][current[1]].totalDistance:
-                current = node
+    while len(open_list) > 0:
+        current = min(open_list, key=lambda x: self.nodes[x[0]][x[1]].totalDistance)
+
         row, col = current
         current_node = self.nodes[row][col]
 
@@ -67,8 +73,9 @@ class pathGraph:
             path = [(row, col)]
 
             while (row, col) != start:
-                path.append((row, col))
+                current_node = self.nodes[row][col]
                 row, col = current_node.parent_row, current_node.parent_col
+                path.append((row, col))
 
             return path[::-1]
 
@@ -87,24 +94,25 @@ class pathGraph:
                 continue
 
             neighbor = self.nodes[nx][ny]
-            neighbor.parent_row = row
-            neighbor.parent_col = col
 
-            neighborTempG = current_node.costToNode + 1
+            if dx != 0 and dy != 0:
+                neighborTempG = current_node.costToNode + math.sqrt(2)
+            else:
+                neighborTempG = current_node.costToNode + 1
 
-            if (nx, ny) not in open_list or neighborTempG < self.nodes[nx][ny].totalDistance:
+            if (nx, ny) not in open_list or neighborTempG < self.nodes[nx][ny].costToNode:
                 #update distances for neighbor node
                 neighbor.costToNode = neighborTempG
-                neighbor.costToDest = self.euclideanDistance(neighbor, end_node)
+                neighbor.costToDest = self.Distance(neighbor, end_node, type)
                 neighbor.totalDistance = neighbor.costToNode + neighbor.costToDest
-                open_list.append((nx, ny))
 
                 neighbor.parent_row = row
                 neighbor.parent_col = col
 
-                if(nx, ny) not in open_list:
+                if (nx, ny) not in open_list:
                     open_list.append((nx, ny))
 
+    #None if no path found
     return None
 
 
@@ -113,7 +121,18 @@ class pathGraph:
     pass
 
 
-  def euclideanDistance(self, node1, node2): #Euclidean/Diagonal/Manhattan distance calculation
-    dx = abs(node1.parent_row - node2.parent_row)**2
-    dy = abs(node1.parent_col - node2.parent_col)**2
-    return math.sqrt(dx+dy)
+#Credit theory.stanford.edu for heuristic function's concept
+  def Distance(self, node1, node2, type): #Euclidean/Diagonal/Manhattan distance calculation
+    if type == "Euclidean":
+        dx = abs(node1.row - node2.row)
+        dy = abs(node1.col - node2.col)
+        return math.sqrt(dx**2+dy**2)
+    if type == "Diagonal":
+        dx = abs(node1.row - node2.row)
+        dy = abs(node1.col - node2.col)
+        return (dx+dy) + ((math.sqrt(2) - 2) * min(dx, dy))
+    if type == "Manhattan":
+        dx = abs(node1.row - node2.row)
+        dy = abs(node1.col - node2.col)
+        return dx+dy
+    return None
