@@ -138,8 +138,8 @@ class pathGraph:
 				else:
 					g[i][j] = 0
 
-		scale = 0.40  # inches per grid cell
-		max_figsize = 60  # max inches
+		scale = 0.40  # scaler for size of figure
+		max_figsize = 60  # max size
 
 		width = min(row * scale, max_figsize)
 		height = min(col * scale, max_figsize)
