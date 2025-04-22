@@ -1,5 +1,5 @@
 from turtle import st
-from Dstar import DstarLite
+from Dstar import DStarLite
 import numpy as np
 import random
 import math
@@ -62,7 +62,13 @@ class pathGraph:
 
 
 	# A* algorithm
-	def aStarShortestPath(self,start,end, type):
+	def aStarShortestPath(self, start, end, type):
+		'''
+		inputs: start and end points in the grid with shape (row, col)
+
+		returns: a list of tuples representing the path from start to end
+		with shape (row, col) for each node in the path
+		'''
 		start_row, start_col = start
 		end_row, end_col = end
 
@@ -94,7 +100,8 @@ class pathGraph:
 					row, col = current_node.parent_row, current_node.parent_col
 					path.append((row, col))
 
-				return path[::-1]
+				self.aStarPath = path[::-1] # reversing the path to get from start to end
+				return self.aStarPath # shape of path is (row, col) for each node in the path
 
 			open_list.remove(current)
 			closed_list.append(current)
@@ -170,6 +177,24 @@ class pathGraph:
 
 		# Creates the obstacles
 		ax.imshow(g, cmap="Greys", extent=[0, row, 0, col], vmin=0, vmax=1)
+
+		# Plotting the path
+		x_values = [col + 0.5 for row, col in self.aStarPath]
+		y_values = [row +0.5 for row, col in self.aStarPath]
+
+		ax.plot(x_values, y_values, color='red', linewidth=2, marker='o', markersize=5)
+
+		# Plotting the start and end points, keeping them centered in the grid
+		start_x, start_y = 0 + 0.5, 0 + 0.5
+		end_x, end_y = (col - 1) + 0.5, (row - 1) + 0.5
+
+		# Plot the markers centered in cells
+		ax.plot(start_x, start_y, color='green', marker='o', markersize=10)
+		ax.plot(end_x, end_y, color='blue', marker='o', markersize=10)
+
+		# labeling the start and end points
+		ax.text(start_x, start_y, 'Start', color='green', fontsize=10, ha='left', va='bottom')
+		ax.text(end_x, end_y, 'End', color='blue', fontsize=10, ha='right', va='bottom')
 
 		# Hide axes
 		ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
