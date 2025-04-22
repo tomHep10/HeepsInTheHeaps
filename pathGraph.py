@@ -1,5 +1,5 @@
 from turtle import st
-
+from Dstar import DstarLite
 import numpy as np
 import random
 import math
@@ -43,8 +43,22 @@ class pathGraph:
 
 
 
-	def _createDStarGraph(self):
-		pass
+	def _createDStarGraph(self, row, col):
+		self.dStarGraph = np.zeros((row, col)) # 317x317 grid is goal for minimum size
+		self.nodes = [[Node() for x in range(row)] for y in range(col)]
+
+		probabilityOfObstacle = 0.3 # 30% chance of an obstacle
+
+		# adding obstacles to the grid
+		for i in range(row):
+			for j in range(col):
+				if random.random() < probabilityOfObstacle:
+					self.dStarGraph[i][j] = 1
+
+		self.dStarGraph[0][0] = 0
+		self.dStarGraph[row-1][col-1] = 0
+		# for row in self.dStarGraph:
+		# 	print(' '.join(str(cell) for cell in row))
 
 
 	# A* algorithm
@@ -120,8 +134,10 @@ class pathGraph:
 
 
 	# D* algorithm
-	def shortestDynamicPath(self):
-		pass
+	def shortestDynamicPath(self,start,end,grid):
+		dstar = DStarLite(start, goal=end, grid=grid)
+		dstar.shortestPath()
+		print("Initial Path:", dstar.getPath())
 
 
 	# Plotting the a* grid
