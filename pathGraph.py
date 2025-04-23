@@ -57,8 +57,8 @@ class pathGraph:
 
 		self.dStarGraph[0][0] = 0
 		self.dStarGraph[row-1][col-1] = 0
-		# for row in self.dStarGraph:
-		# 	print(' '.join(str(cell) for cell in row))
+		for row in self.dStarGraph:
+			print(' '.join(str(cell) for cell in row))
 
 
 	# A* algorithm
@@ -99,8 +99,9 @@ class pathGraph:
 					current_node = self.nodes[row][col]
 					row, col = current_node.parent_row, current_node.parent_col
 					path.append((row, col))
-
+				
 				self.aStarPath = path[::-1] # reversing the path to get from start to end
+				print(self.aStarPath)
 				return self.aStarPath # shape of path is (row, col) for each node in the path
 
 			open_list.remove(current)
@@ -142,9 +143,17 @@ class pathGraph:
 
 	# D* algorithm
 	def shortestDynamicPath(self,start,end,grid):
-		dstar = DStarLite(start, goal=end, grid=grid)
-		dstar.shortestPath()
-		print("Initial Path:", dstar.getPath())
+		self.grid = grid
+		self.start = start
+		self.goal = end
+		self.dstar = DStarLite(start, goal=end, grid=grid)
+		self.dstar.shortestPath()
+		print("Initial Path:", self.dstar.getPath())
+
+	def updateDStar(self, pos):
+		self.dstar.updateObstacle(pos)
+		self.shortestDynamicPath(self.start, self.goal, self.grid)
+		
 
 
 	# Plotting the a* grid
@@ -201,6 +210,46 @@ class pathGraph:
 
 		plt.title("A* Pathfinding")
 		plt.show()
+
+
+	def plotDGrid(self):
+		g = np.array(self.grid, dtype=float)
+		row, col = g.shape
+
+		for i in range(row):
+			for j in range(col):
+				g[i][j] = 0.3 if g[i][j] == 1 else 0.0
+
+		scale = 0.40
+		max_figsize = 60
+		width = min(row * scale, max_figsize)
+		height = min(col * scale, max_figsize)
+
+		fig, ax = plt.subplots(figsize=(width, height))
+		ax.set_xticks(np.arange(0, row + 1, 1))
+		ax.set_yticks(np.arange(0, col + 1, 1))
+		ax.grid(which='both', color='black', linestyle='-', linewidth=1)
+		ax.imshow(g, cmap="Greys", extent=[0, row, 0, col], vmin=0, vmax=1)
+
+		path = self.dstar.getPath()
+		if path:
+			x_values = [x + 0.5 for x, y in path]
+			y_values = [y + 0.5 for x, y in path]
+			ax.plot(x_values, y_values, color='red', linewidth=2, marker='o', markersize=5)
+
+		sx, sy = self.start
+		gx, gy = self.goal
+		ax.plot(sx + 0.5, sy + 0.5, color='green', marker='o', markersize=10)
+		ax.text(sx + 0.5, sy + 0.5, 'Start', color='green', fontsize=10, ha='left', va='bottom')
+
+		ax.plot(gx + 0.5, gy + 0.5, color='blue', marker='o', markersize=10)
+		ax.text(gx + 0.5, gy + 0.5, 'Goal', color='blue', fontsize=10, ha='right', va='bottom')
+
+		ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+		plt.title("D* Lite Pathfinding")
+		plt.show()
+
+
 
 	#Credit theory.stanford.edu for heuristic function's concept
 	def Distance(self, node1, node2, type): #Euclidean/Diagonal/Manhattan distance calculation
