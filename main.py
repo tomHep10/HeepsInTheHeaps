@@ -9,7 +9,7 @@ def main():
 	if i == 1:
 		graph._createAStarGraph(5, 5)
 		#keeping start at (0,0) and end at (4,4) for now
-		path = graph.aStarShortestPath((0,0), (4,4), "Manhattan")
+		path = graph.aStarShortestPath((0,0), (9,9), "Manhattan")
 		if path is not None:
 			graph.aStarPath = path
 			for x,y  in path:

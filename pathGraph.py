@@ -103,6 +103,8 @@ class pathGraph:
 				self.aStarPath = path[::-1] # reversing the path to get from start to end
 				return self.aStarPath # shape of path is (row, col) for each node in the path
 
+
+
 			open_list.remove(current)
 			closed_list.append(current)
 
@@ -137,7 +139,7 @@ class pathGraph:
 						open_list.append((nx, ny))
 
 		#None if no path found
-		return None
+		return []
 
 
 	# D* algorithm
@@ -149,17 +151,23 @@ class pathGraph:
 
 	# Plotting the a* grid
 	def plotGrid(self):
+		#handling None path case
+		if self.aStarPath is None:
+			print("No path found. So sad.")
+			return
 
 		g = self.aStarGraph # the 2d numpy array representing the grid values 0, 1
 		row, col = g.shape
 
 		# looping through grid, changing obstacle values to 0.3 for grey color
+		temp_grid = np.copy(g)
+		flipped_path = [(row - 1 - r, c) for r, c in self.aStarPath]
 		for i in range(row):
 			for j in range(col):
-				if g[i][j] == 1:
-					g[i][j] = 0.3 # grey color, between 0-1 determines darkness
+				if temp_grid[i][j] == 1:
+					temp_grid[i][j] = 0.3 # grey color, between 0-1 determines darkness
 				else:
-					g[i][j] = 0
+					temp_grid[i][j] = 0
 
 		scale = 0.40  # scaler for size of figure
 		max_figsize = 60  # max size
@@ -176,17 +184,17 @@ class pathGraph:
 		ax.grid(which='both', color='black', linestyle='-', linewidth=1)
 
 		# Creates the obstacles
-		ax.imshow(g, cmap="Greys", extent=[0, row, 0, col], vmin=0, vmax=1)
+		ax.imshow(temp_grid, cmap="Greys", extent=[0, row, 0, col], vmin=0, vmax=1)
 
 		# Plotting the path
-		x_values = [col + 0.5 for row, col in self.aStarPath]
-		y_values = [row +0.5 for row, col in self.aStarPath]
+		x_values = [col + 0.5 for row, col in flipped_path]
+		y_values = [row +0.5 for row, col in flipped_path]
 
 		ax.plot(x_values, y_values, color='red', linewidth=2, marker='o', markersize=5)
 
 		# Plotting the start and end points, keeping them centered in the grid
-		start_x, start_y = 0 + 0.5, 0 + 0.5
-		end_x, end_y = (col - 1) + 0.5, (row - 1) + 0.5
+		start_x, start_y = 0+0.5, (row - 1) + 0.5
+		end_x, end_y = (col-1) + 0.5, 0 + 0.5
 
 		# Plot the markers centered in cells
 		ax.plot(start_x, start_y, color='green', marker='o', markersize=10)
