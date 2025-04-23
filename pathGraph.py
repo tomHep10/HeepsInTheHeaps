@@ -224,6 +224,7 @@ class pathGraph:
 		g = np.array(self.grid, dtype=float)
 		row, col = g.shape
 
+		flipped_path = [(row - 1 - r, c) for r, c in self.aStarPath]
 		for i in range(row):
 			for j in range(col):
 				g[i][j] = 0.3 if g[i][j] == 1 else 0.0
@@ -239,14 +240,15 @@ class pathGraph:
 		ax.grid(which='both', color='black', linestyle='-', linewidth=1)
 		ax.imshow(g, cmap="Greys", extent=[0, row, 0, col], vmin=0, vmax=1)
 
-		path = self.dstar.getPath()
-		if path:
-			x_values = [x + 0.5 for x, y in path]
-			y_values = [y + 0.5 for x, y in path]
+		flipped_path = self.dstar.getPath()
+		if flipped_path:
+			x_values = [x + 0.5 for x, y in flipped_path]
+			y_values = [y + 0.5 for x, y in flipped_path]
 			ax.plot(x_values, y_values, color='red', linewidth=2, marker='o', markersize=5)
 
-		sx, sy = self.start
-		gx, gy = self.goal
+
+		sx, sy = 0+0.5, (row - 1) + 0.5
+		gx, gy = (col-1) + 0.5, 0 + 0.5
 		ax.plot(sx + 0.5, sy + 0.5, color='green', marker='o', markersize=10)
 		ax.text(sx + 0.5, sy + 0.5, 'Start', color='green', fontsize=10, ha='left', va='bottom')
 
